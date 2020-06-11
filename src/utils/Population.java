@@ -9,10 +9,12 @@ public class Population {
     private static ArrayList <Gpoint> Graf = new ArrayList<>();
     private static ArrayList<Color> Colors;
     private ArrayList <Pop> Pops;
+    private ArrayList <Pop> OldPops;
     private int N, DB;
     private double AvgFit;
 
     public Population(int n, int db){
+        OldPops = new ArrayList<>();
         Colors = new ArrayList();
         Pops = new ArrayList<>();
         this.N = n;
@@ -54,26 +56,41 @@ public class Population {
     }
 
     public void mutation(){
-        ArrayList <Pop> oldPops = new ArrayList<>();
 
         if (AvgFit < 0.1){
             AvgFit = 0.1;
         }
 
+        OldPops.clear();
+
         //legjobb fele kiválasztása arányosan
         for (int i = 0; i < Pops.size(); i++) {
             //System.out.println("Fit: " + Pops.get(i).FitC + " Egyed esélye: " + Pops.get(i).FitC / (N * AvgFit));
             if (Math.random() < Pops.get(i).FitC / (N * AvgFit)){
-                oldPops.add(Pops.get(i));
+                OldPops.add(Pops.get(i));
             }
         }
-        System.out.println("Szülök db: " + oldPops.size());
+        System.out.println("Szülök db: " + OldPops.size());
+
+        //szülök számának random egyedekel való növelés
+        int r = (int) (Math.random()*5) +1;    //1-5 random egyed
+        //r db egyed
+        for (int j = 0; j < r; j++) {
+
+            Pop p = new Pop();
+
+            //N db gen
+            for (int i = 0; i < N; i++) {
+                p.Nums.add((int) (Math.random() * Colors.size()));
+            }
+            OldPops.add(p);
+        }
 
         Pops.clear();
-        Pops.add(oldPops.get(0));       //legfitebb elem hozzáadás
+        Pops.add(OldPops.get(0));       //legfitebb elem hozzáadás
 
         //megmaradnépeség random mutálása
-        for (Pop p : oldPops) {
+        for (Pop p : OldPops) {
             for (int i = 0; i < p.Nums.size(); i++) {
                 if (Math.random() > 1 / p.Nums.size()){
                     p.Nums.set(i, (int) (Math.random() * Colors.size()));
@@ -84,19 +101,20 @@ public class Population {
         //népeség helyreálitás kicserélésel
         while (Pops.size() != DB){
             Pop p = new Pop();
-            int p1 = (int) (Math.random() * oldPops.size());
-            int p2 = (int) (Math.random() * oldPops.size());
+            int p1 = (int) (Math.random() * OldPops.size());
+            int p2 = (int) (Math.random() * OldPops.size());
 
             for (int i = 0; i < N; i++) {
                 if (Math.random() > 0.5){
-                    p.Nums.add(oldPops.get(p1).Nums.get(i));
+                    p.Nums.add(OldPops.get(p1).Nums.get(i));
                 }else {
-                    p.Nums.add(oldPops.get(p2).Nums.get(i));
+                    p.Nums.add(OldPops.get(p2).Nums.get(i));
                 }
             }
 
             Pops.add(p);
         }
+
 
     }
 
@@ -117,6 +135,11 @@ public class Population {
         System.out.println("Max fitc: " + Pops.get(0).FitC + " avgFit: " + AvgFit);
         pringGraf(Pops.get(0).Nums);
         System.out.println();
+        System.out.println("Min: " + Pops.get(Pops.size() -1).FitC);
+        pringGraf(Pops.get(Pops.size() -1).Nums);
+        System.out.println();
+
+        Log.log(Pops.get(0).FitC + "\t" + AvgFit + "\t"+ Pops.get(Pops.size() -1).FitC + "\t" + OldPops.size());
     }
 
     public void calcFit(){
