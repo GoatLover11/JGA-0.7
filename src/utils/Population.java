@@ -26,7 +26,7 @@ public class Population {
         Colors.add(Color.MAGENTA);
         Colors.add(Color.CYAN);
 
-        System.out.println(Pops.getClass());
+        //System.out.println(Pops.getClass());
 
         //graf generálás
         for (int i = 0; i < n; i++) {
@@ -132,7 +132,7 @@ public class Population {
                     }
                 }
             }
-            System.out.println();
+            //System.out.println();
             p.calc();
             //pringGraf(p.Nums);
         }
